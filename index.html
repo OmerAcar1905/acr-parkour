@@ -47,5 +47,23 @@ x.fillRect(20,y,s,s);x.fillRect(40+s,y,s,s);x.fillRect(c.width-s-20,y,s,s);
 x.fillStyle='#fff';x.font=s*.5+'px sans-serif';
 x.fillText('◀',20+s*.2,y+s*.68);x.fillText('▶',40+s*1.2,y+s*.68);x.fillText('▲',c.width-s+s*.0,y+s*.68);
 }
-(function loop(){up();dr();requestAnimationFrame(loop)})();
+var mnu=1;
+function mnuBtns(){var w=c.width,h=c.height;return [[w/2-110,h/2-10,220,56],[w/2-110,h/2+66,220,56]]}
+function mnuDraw(){
+x.setTransform(1,0,0,1,0,0);x.fillStyle='#6cf';x.fillRect(0,0,c.width,c.height);
+x.textAlign='center';x.fillStyle='#000';x.font='bold 44px sans-serif';
+x.fillText(mnu==2?'Oyundan çıktın':'ACR PARKOUR',c.width/2,c.height/2-60);
+var b=mnuBtns(),t=['BAŞLA','ÇIKIŞ'];
+for(var i=0;i<2;i++){x.fillStyle=i?'#c22':'#4a4';x.fillRect(b[i][0],b[i][1],b[i][2],b[i][3]);x.fillStyle='#fff';x.font='bold 28px sans-serif';x.fillText(t[i],c.width/2,b[i][1]+38)}
+x.textAlign='left';
+}
+c.addEventListener('pointerdown',function(e){
+if(!mnu)return;
+var r=c.getBoundingClientRect(),mx=(e.clientX-r.left)*c.width/r.width,my=(e.clientY-r.top)*c.height/r.height,b=mnuBtns();
+function hit(a){return mx>a[0]&&mx<a[0]+a[2]&&my>a[1]&&my<a[1]+a[3]}
+if(hit(b[0])){mnu=0;rst()}
+else if(hit(b[1])){mnu=2;try{window.close()}catch(err){}}
+e.preventDefault();
+});
+(function loop(){if(mnu){mnuDraw()}else{up();dr()}requestAnimationFrame(loop)})();
 </script></body></html>
