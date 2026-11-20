@@ -1,0 +1,51 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"><title>ACR PARKOUR</title>
+<style>html,body{margin:0;background:#111;overflow:hidden;touch-action:none}canvas{display:block}</style></head><body><canvas id="c"></canvas><script>
+const c=document.getElementById('c'),x=c.getContext('2d');
+const W=800,H=400;let S=1,OX=0;
+function rs(){c.width=innerWidth;c.height=innerHeight;S=Math.min(c.width/W,c.height/H);OX=(c.width-W*S)/2}
+onresize=rs;rs();
+const L=[
+{P:[[0,340,400],[480,340,300],[860,340,300],[1240,340,400]],K:[],F:1550},
+{P:[[0,340,300],[380,300,150],[600,260,150],[820,300,150],[1040,340,300],[1420,340,300]],K:[],F:1650},
+{P:[[0,340,1200]],K:[[300,40],[550,60],[800,40],[950,40]],F:1130},
+{P:[[0,340,200],[280,300,80],[440,260,80],[600,220,80],[760,260,80],[920,300,80],[1080,340,300]],K:[],F:1330},
+{P:[[0,340,200],[280,320,100],[460,280,80],[620,240,80],[780,280,80],[940,320,100],[1100,340,300],[1480,300,80],[1640,260,80],[1800,340,300]],K:[[1150,40],[1250,40]],F:2050}
+];
+let lv=0,px,py,vy,gr,cam,done=0,key={},tc={l:0,r:0,j:0};
+function rst(){px=50;py=300;vy=0;gr=0;cam=0}rst();
+const bs=()=>Math.min(c.width,c.height)*.2;
+function tch(e){e.preventDefault();tc={l:0,r:0,j:0};const s=bs();
+for(const t of e.touches){const X=t.clientX,Y=t.clientY;
+if(Y>c.height-s-40){if(X<s*2+60){X<s+30?tc.l=1:tc.r=1}else if(X>c.width-s-40)tc.j=1}}}
+['touchstart','touchmove','touchend','touchcancel'].forEach(n=>addEventListener(n,tch,{passive:false}));
+onkeydown=e=>key[e.key]=1;onkeyup=e=>key[e.key]=0;
+function up(){
+if(done){if(tc.j||key[' ']){done=0;rst()}return}
+const m=L[lv],l=tc.l||key.ArrowLeft,r=tc.r||key.ArrowRight,j=tc.j||key.ArrowUp||key[' '];
+px+=(r?4:0)-(l?4:0);if(px<0)px=0;
+vy+=.5;const ob=py+32;py+=vy;gr=0;
+if(vy>=0)for(const p of m.P)if(px+24>p[0]&&px<p[0]+p[2]&&ob<=p[1]+1&&py+32>=p[1]){py=p[1]-32;vy=0;gr=1}
+if(j&&gr){vy=-11;gr=0}
+for(const k of m.K)if(px+24>k[0]&&px<k[0]+k[1]&&py+32>322&&py<340)rst();
+if(py>500)rst();
+if(Math.abs(px-m.F)<30){lv++;if(lv>=L.length){done=1;lv=0}rst()}
+cam=Math.max(0,px-300);
+}
+function dr(){
+x.setTransform(1,0,0,1,0,0);x.fillStyle='#6cf';x.fillRect(0,0,c.width,c.height);
+x.setTransform(S,0,0,S,OX,0);
+const m=L[lv];
+x.fillStyle='#4a4';for(const p of m.P)x.fillRect(p[0]-cam,p[1],p[2],20);
+x.fillStyle='#c22';for(const k of m.K)for(let i=0;i<k[1];i+=20){const a=k[0]-cam+i;x.beginPath();x.moveTo(a,340);x.lineTo(a+10,320);x.lineTo(a+20,340);x.fill()}
+x.fillStyle='#fc0';x.fillRect(m.F-cam,280,6,60);x.fillStyle='#f50';x.fillRect(m.F-cam+6,280,30,20);
+x.fillStyle='#fff';x.fillRect(px-cam,py,24,32);
+x.fillStyle='#000';x.font='20px sans-serif';x.fillText('Bölüm '+(lv+1)+'/5',10,26);x.fillText('ACR PARKOUR',640,26);
+if(done)x.fillText('Tebrikler! Oyunu bitirdin. Zıplayarak tekrar başla',180,200);
+x.setTransform(1,0,0,1,0,0);const s=bs(),y=c.height-s-20;
+x.fillStyle='rgba(0,0,0,.35)';
+x.fillRect(20,y,s,s);x.fillRect(40+s,y,s,s);x.fillRect(c.width-s-20,y,s,s);
+x.fillStyle='#fff';x.font=s*.5+'px sans-serif';
+x.fillText('◀',20+s*.2,y+s*.68);x.fillText('▶',40+s*1.2,y+s*.68);x.fillText('▲',c.width-s+s*.0,y+s*.68);
+}
+(function loop(){up();dr();requestAnimationFrame(loop)})();
+</script></body></html>
